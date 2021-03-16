@@ -2,14 +2,15 @@ package main
 
 import (
 	"crypto/rsa"
-	"net/http"
-
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/suhwanggyu/loginGo/controller"
-	"github.com/suhwanggyu/loginGo/key"
+	"github.com/suhwanggyu/qna/db"
 )
 
 var pubkey *rsa.PublicKey = nil
+type routerType struct{
+	*gin.Engine
+}
 
 func CORS() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -25,24 +26,20 @@ func CORS() gin.HandlerFunc {
 	}
 }
 
-func CheckAuth() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if pubkey == nil {
-			pubkey = RequestPubKey()
-		}
-		token := controller.TokenExpired{}
-		check := key.CheckTokenExpired(*pubkey, token)
-		if check == false{
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
-		}
-		c.Next()
-	}
+func (router routerType) RoutesSetting() {
+	router.GET("/thread", func(c *gin.Context) {
+		fmt.Println("TODO")
+	})
+	router.POST("/thread", func(c *gin.Context) {
+		fmt.Println("TODO")
+	})
 }
 
 func main() {
-	router := gin.Default()
+	router := &routerType{gin.Default()}
 	router.Use(CORS())
-	router.Use(CheckAuth())
-	router.Run()
+	//router.Use(middleware.CheckAuth(pubkey))
+	db.M()
+	router.RoutesSetting()
+	router.Run(":3000")
 }
